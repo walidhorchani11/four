@@ -8,35 +8,35 @@ import { useOrder } from "./order-context"
 
 const products = [
   {
-    name: "Four Compact",
-    image: "/images/oven-compact.jpg",
-    price: "450",
-    oldPrice: "550",
-    capacity: "35L",
+    name: "Four 1 étage",
+    image: "/images/four1.jpg",
+    price: "1100",
+    //oldPrice: "1100",
+    capacity: "1 étage",
     usage: "Usage domestique",
     gasType: "Butane/Propane",
     features: ["Chauffe rapide", "Compact", "Facile a installer"],
     badge: "Populaire"
   },
   {
-    name: "Four Professionnel",
-    image: "/images/oven-professional.jpg",
-    price: "850",
-    oldPrice: "1050",
-    capacity: "60L",
+    name: "Four 2 étages",
+    image: "/images/four-2-etage.jpg",
+    price: "1300",
+    oldPrice: "1350",
+    capacity: "2 étages",
     usage: "Maison & Commerce",
     gasType: "Butane/Propane",
     features: ["Grande capacite", "Multi-niveaux", "Usage intensif"],
     badge: "Meilleure vente"
   },
   {
-    name: "Four Pizza",
-    image: "/images/oven-pizza.jpg",
-    price: "1200",
-    oldPrice: "1500",
-    capacity: "80L",
+    name: "Four 3 étages",
+    image: "/images/four-3-etage.jpeg",
+    price: "1500",
+    oldPrice: "1650",
+    capacity: "3 étages",
     usage: "Pizzeria & Boulangerie",
-    gasType: "Propane",
+    gasType: "Butane/Propane",
     features: ["Pierre refractaire", "Haute temperature", "Pro"],
     badge: "Premium"
   }

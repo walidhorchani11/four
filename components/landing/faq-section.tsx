@@ -14,15 +14,11 @@ const faqs = [
   },
   {
     question: "Quels modes de paiement acceptez-vous ?",
-    answer: "Nous acceptons le paiement a la livraison (cash). Vous payez uniquement a la reception de votre four."
-  },
-  {
-    question: "Y a-t-il une garantie ?",
-    answer: "Oui, tous nos fours sont couverts par une garantie. Nous assurons egalement un service apres-vente reactif."
+    answer: "Nous acceptons le paiement a la livraison (cash), avec WafaCash , IZI payement, Poste ou virement bancaire"
   },
   {
     question: "Le four est-il facile a utiliser ?",
-    answer: "Absolument ! Nos fours sont concus pour une utilisation simple et securisee. Un guide d'utilisation est fourni avec chaque achat."
+    answer: "Absolument ! Nos fours sont concus pour une utilisation simple et securisee."
   },
   {
     question: "Quel type de gaz utiliser ?",
