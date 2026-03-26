@@ -7,7 +7,6 @@ import { X } from 'lucide-react'
 export function OrderFormModal() {
   const { isOpen, closeOrder, selectedProduct } = useOrder()
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [quantity, setQuantity] = useState(1)
   const [formData, setFormData] = useState({
     nom: '',
     telephone: '',
@@ -46,7 +45,6 @@ Nom: ${formData.nom}
 Téléphone: ${formData.telephone}
 Ville: ${formData.ville}
 Produit: ${selectedProduct}
-Quantité: ${quantity}
 Commentaire: ${formData.commentaire || 'Aucun'}
     `.trim()
 
@@ -58,7 +56,6 @@ Commentaire: ${formData.commentaire || 'Aucun'}
       closeOrder()
       setIsSubmitted(false)
       setFormData({ nom: '', telephone: '', ville: '', commentaire: '' })
-      setQuantity(1)
     }, 3000)
   }
 
@@ -161,30 +158,6 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                       readOnly
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
                     />
-                  </div>
-
-                  {/* Quantité */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Quantité
-                    </label>
-                    <div className="flex items-center space-x-3">
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 flex items-center justify-center border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors font-semibold"
-                      >
-                        −
-                      </button>
-                      <span className="text-lg font-semibold w-8 text-center">{quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="w-10 h-10 flex items-center justify-center border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors font-semibold"
-                      >
-                        +
-                      </button>
-                    </div>
                   </div>
 
                   {/* Commentaire */}
