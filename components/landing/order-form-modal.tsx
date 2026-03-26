@@ -70,7 +70,12 @@ Prix: ${finalProduct.price} DT
 Commentaire: ${formData.commentaire || 'Aucun'}
     `.trim()
 
-    const whatsappNumber = '+21655555555'
+    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+    if (!whatsappNumber) {
+      alert("Numéro WhatsApp manquant. Veuillez configurer NEXT_PUBLIC_WHATSAPP_NUMBER.")
+      setIsSubmitted(false)
+      return
+    }
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
 
