@@ -36,7 +36,7 @@ export function HeroSection() {
             {/* CTAs */}
             <div className="mb-10 flex flex-col gap-4 sm:flex-row">
               <Button 
-                onClick={() => openOrder('Four Compact')}
+                onClick={() => openOrder()}
                 size="lg" 
                 className="group gap-2 text-lg shadow-lg transition-all hover:shadow-xl hover:shadow-primary/25"
               >

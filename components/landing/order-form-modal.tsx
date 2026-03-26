@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { useOrder } from './order-context'
 import { X } from 'lucide-react'
+import { productsCatalog } from './products-catalog'
 
 export function OrderFormModal() {
-  const { isOpen, closeOrder, selectedProduct } = useOrder()
+  const { isOpen, closeOrder, selectedProductId } = useOrder()
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [chosenProductId, setChosenProductId] = useState<string>('')
   const [formData, setFormData] = useState({
     nom: '',
     telephone: '',
@@ -23,6 +25,20 @@ export function OrderFormModal() {
     }
   }, [isOpen])
 
+  useEffect(() => {
+    // If the order was opened from a product card, the context already has the product.
+    // Otherwise, we let the user pick it in the modal.
+    if (!isOpen) return
+    setChosenProductId(selectedProductId ?? '')
+  }, [isOpen, selectedProductId])
+
+  const productFromContext =
+    selectedProductId ? productsCatalog.find((p) => p.id === selectedProductId) ?? null : null
+  const productFromChoice =
+    chosenProductId ? productsCatalog.find((p) => p.id === chosenProductId) ?? null : null
+  const finalProduct = productFromContext ?? productFromChoice
+  const isProductPreselected = Boolean(productFromContext)
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -36,6 +52,11 @@ export function OrderFormModal() {
       return
     }
 
+    if (!finalProduct) {
+      alert('Veuillez choisir un produit')
+      return
+    }
+
     setIsSubmitted(true)
     
     // Send to WhatsApp or backend
@@ -44,7 +65,8 @@ Nouvelle commande:
 Nom: ${formData.nom}
 Téléphone: ${formData.telephone}
 Ville: ${formData.ville}
-Produit: ${selectedProduct}
+Produit: ${finalProduct.name}
+Prix: ${finalProduct.price} DT
 Commentaire: ${formData.commentaire || 'Aucun'}
     `.trim()
 
@@ -56,6 +78,7 @@ Commentaire: ${formData.commentaire || 'Aucun'}
       closeOrder()
       setIsSubmitted(false)
       setFormData({ nom: '', telephone: '', ville: '', commentaire: '' })
+      setChosenProductId('')
     }, 3000)
   }
 
@@ -151,13 +174,42 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     <label htmlFor="produit-input" className="block text-sm font-semibold text-gray-700 mb-2">
                       Produit *
                     </label>
-                    <input
-                      id="produit-input"
-                      type="text"
-                      value={selectedProduct || 'Aucun produit sélectionné'}
-                      readOnly
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
-                    />
+                    {isProductPreselected && productFromContext ? (
+                      <>
+                        <input
+                          id="produit-input"
+                          type="text"
+                          value={productFromContext.name}
+                          readOnly
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                        />
+                        <p className="mt-2 text-sm text-gray-700 font-semibold">
+                          Prix: {productFromContext.price} DT
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <select
+                          id="produit-input"
+                          value={chosenProductId}
+                          onChange={(e) => setChosenProductId(e.target.value)}
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
+                        >
+                          <option value="">Choisir un produit...</option>
+                          {productsCatalog.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} - {p.price} DT
+                            </option>
+                          ))}
+                        </select>
+                        {finalProduct ? (
+                          <p className="mt-2 text-sm text-gray-700 font-semibold">
+                            Prix: {finalProduct.price} DT
+                          </p>
+                        ) : null}
+                      </>
+                    )}
                   </div>
 
                   {/* Commentaire */}

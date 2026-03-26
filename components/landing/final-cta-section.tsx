@@ -26,7 +26,7 @@ export function FinalCTASection() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Button 
-              onClick={() => openOrder('Four Professionnel')}
+              onClick={() => openOrder()}
               size="lg" 
               className="group gap-2 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
             >

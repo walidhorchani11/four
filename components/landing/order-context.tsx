@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState } from 'react'
 
 interface OrderContextType {
   isOpen: boolean
-  selectedProduct: string | null
-  openOrder: (product: string) => void
+  selectedProductId: string | null
+  openOrder: (productId?: string) => void
   closeOrder: () => void
 }
 
@@ -13,22 +13,22 @@ const OrderContext = createContext<OrderContextType | undefined>(undefined)
 
 export function OrderProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<string | null>(null)
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
 
-  const openOrder = (product: string) => {
-    setSelectedProduct(product)
+  const openOrder = (productId?: string) => {
+    setSelectedProductId(productId ?? null)
     setIsOpen(true)
     document.body.style.overflow = 'hidden'
   }
 
   const closeOrder = () => {
     setIsOpen(false)
-    setSelectedProduct(null)
+    setSelectedProductId(null)
     document.body.style.overflow = 'unset'
   }
 
   return (
-    <OrderContext.Provider value={{ isOpen, selectedProduct, openOrder, closeOrder }}>
+    <OrderContext.Provider value={{ isOpen, selectedProductId, openOrder, closeOrder }}>
       {children}
     </OrderContext.Provider>
   )

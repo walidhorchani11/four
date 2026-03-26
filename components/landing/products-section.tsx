@@ -5,42 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, ShoppingCart } from "lucide-react"
 import { useOrder } from "./order-context"
-
-const products = [
-  {
-    name: "Four 1 étage",
-    image: "/images/four1.jpg",
-    price: "1100",
-    //oldPrice: "1100",
-    capacity: "1 étage",
-    usage: "Usage domestique",
-    gasType: "Butane/Propane",
-    features: ["Chauffe rapide", "Compact", "Facile a installer"],
-    badge: "Populaire"
-  },
-  {
-    name: "Four 2 étages",
-    image: "/images/four-2-etage.jpg",
-    price: "1300",
-    oldPrice: "1350",
-    capacity: "2 étages",
-    usage: "Maison & Commerce",
-    gasType: "Butane/Propane",
-    features: ["Grande capacite", "Multi-niveaux", "Usage intensif"],
-    badge: "Meilleure vente"
-  },
-  {
-    name: "Four 3 étages",
-    image: "/images/four-3-etage.jpeg",
-    price: "1500",
-    oldPrice: "1650",
-    capacity: "3 étages",
-    usage: "Pizzeria & Boulangerie",
-    gasType: "Butane/Propane",
-    features: ["Pierre refractaire", "Haute temperature", "Pro"],
-    badge: "Premium"
-  }
-]
+import { productsCatalog } from "./products-catalog"
 
 export function ProductsSection() {
   const { openOrder } = useOrder()
@@ -59,9 +24,9 @@ export function ProductsSection() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product, index) => (
+          {productsCatalog.map((product) => (
             <div
-              key={index}
+              key={product.id}
               className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/50 hover:shadow-xl"
             >
               {/* Badge */}
@@ -102,7 +67,7 @@ export function ProductsSection() {
 
                 {/* Features */}
                 <ul className="mb-6 space-y-2">
-                  {product.features.map((feature, i) => (
+                  {(product.features ?? []).map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle className="h-4 w-4 text-primary" />
                       {feature}
@@ -118,7 +83,7 @@ export function ProductsSection() {
 
                 {/* CTA */}
                 <Button 
-                  onClick={() => openOrder(product.name)}
+                  onClick={() => openOrder(product.id)}
                   className="w-full gap-2 text-base" 
                   size="lg"
                 >
