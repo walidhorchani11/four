@@ -1,9 +1,24 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useOrder } from './order-context'
 import { X } from 'lucide-react'
 import { productsCatalog } from './products-catalog'
+import { getLeadSessionId, rotateLeadSessionId } from '@/lib/lead-session'
+
+function hasMeaningfulLeadData(params: {
+  nom: string
+  telephone: string
+  adresse: string
+  productId: string | null
+}) {
+  const phoneDigits = params.telephone.replace(/\D/g, '').length
+  if (phoneDigits >= 8) return true
+  if (params.nom.trim().length >= 2) return true
+  if (params.adresse.trim().length >= 8) return true
+  if (params.productId && params.productId.length > 0) return true
+  return false
+}
 
 export function OrderFormModal() {
   const { isOpen, closeOrder, selectedProductId } = useOrder()
@@ -16,6 +31,21 @@ export function OrderFormModal() {
     commentaire: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [sessionId, setSessionId] = useState('')
+
+  const formSnapshotRef = useRef(formData)
+  formSnapshotRef.current = formData
+  const chosenProductIdRef = useRef(chosenProductId)
+  chosenProductIdRef.current = chosenProductId
+  const selectedProductIdRef = useRef(selectedProductId)
+  selectedProductIdRef.current = selectedProductId
+
+  const orderJustCompletedRef = useRef(false)
+  const prevIsOpenRef = useRef(false)
+
+  useEffect(() => {
+    setSessionId(getLeadSessionId())
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
@@ -25,6 +55,47 @@ export function OrderFormModal() {
       }, 100)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen && !prevIsOpenRef.current) {
+      setFormData({ nom: '', telephone: '', adresse: '', commentaire: '' })
+      setIsSubmitted(false)
+    }
+    if (!isOpen && prevIsOpenRef.current) {
+      const snap = formSnapshotRef.current
+      const chosen = chosenProductIdRef.current
+      const sel = selectedProductIdRef.current
+      const productId = sel ?? (chosen || null)
+      if (
+        !orderJustCompletedRef.current &&
+        hasMeaningfulLeadData({
+          nom: snap.nom,
+          telephone: snap.telephone,
+          adresse: snap.adresse,
+          productId,
+        })
+      ) {
+        const sid = getLeadSessionId()
+        void fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientSessionId: sid,
+            nom: snap.nom,
+            telephone: snap.telephone,
+            adresse: snap.adresse,
+            commentaire: snap.commentaire || null,
+            productId,
+            status: 'dropped',
+          }),
+        })
+      }
+      if (orderJustCompletedRef.current) {
+        orderJustCompletedRef.current = false
+      }
+    }
+    prevIsOpenRef.current = isOpen
+  }, [isOpen, selectedProductId])
 
   useEffect(() => {
     // If the order was opened from a product card, the context already has the product.
@@ -39,6 +110,35 @@ export function OrderFormModal() {
     chosenProductId ? productsCatalog.find((p) => p.id === chosenProductId) ?? null : null
   const finalProduct = productFromContext ?? productFromChoice
   const isProductPreselected = Boolean(productFromContext)
+
+  const saveLeadDraft = useCallback(() => {
+    if (!sessionId || isSubmitted) return
+    const productId = finalProduct?.id ?? null
+    if (!hasMeaningfulLeadData({ ...formData, productId })) return
+    void fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clientSessionId: sessionId,
+        nom: formData.nom,
+        telephone: formData.telephone,
+        adresse: formData.adresse,
+        commentaire: formData.commentaire || null,
+        productId,
+        status: 'draft',
+      }),
+    })
+  }, [sessionId, isSubmitted, formData, finalProduct])
+
+  useEffect(() => {
+    if (!isOpen || !sessionId || isSubmitted) return
+    const productId = finalProduct?.id ?? null
+    if (!hasMeaningfulLeadData({ ...formData, productId })) return
+    const t = window.setTimeout(() => {
+      saveLeadDraft()
+    }, 1500)
+    return () => window.clearTimeout(t)
+  }, [formData, finalProduct, isOpen, sessionId, isSubmitted, saveLeadDraft])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -66,6 +166,7 @@ export function OrderFormModal() {
 
     setIsSubmitting(true)
     try {
+      const sid = sessionId || getLeadSessionId()
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,6 +176,7 @@ export function OrderFormModal() {
           adresse: formData.adresse,
           commentaire: formData.commentaire || null,
           productId: finalProduct.id,
+          clientSessionId: sid,
         }),
       })
 
@@ -84,6 +186,7 @@ export function OrderFormModal() {
         return
       }
 
+      orderJustCompletedRef.current = true
       setIsSubmitted(true)
 
       const message = `
@@ -98,6 +201,18 @@ Commentaire: ${formData.commentaire || 'Aucun'}
 
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
       window.open(whatsappUrl, '_blank')
+
+      void fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientSessionId: sid,
+          markWhatsappOpened: true,
+        }),
+      })
+
+      rotateLeadSessionId()
+      setSessionId(getLeadSessionId())
 
       setTimeout(() => {
         closeOrder()

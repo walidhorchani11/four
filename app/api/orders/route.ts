@@ -9,6 +9,7 @@ const bodySchema = z.object({
   adresse: z.string().trim().min(1).max(500),
   commentaire: z.string().trim().max(2000).optional().nullable(),
   productId: z.string().trim().min(1),
+  clientSessionId: z.string().uuid().optional(),
 })
 
 export async function POST(request: Request) {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
     }
 
-    const { nom, telephone, adresse, commentaire, productId } = parsed.data
+    const { nom, telephone, adresse, commentaire, productId, clientSessionId } = parsed.data
 
     const product = productsCatalog.find((p) => p.id === productId)
     if (!product) {
@@ -42,6 +43,13 @@ export async function POST(request: Request) {
         priceDt,
       },
     })
+
+    if (clientSessionId) {
+      await prisma.lead.updateMany({
+        where: { clientSessionId, status: { not: 'converted' } },
+        data: { status: 'converted', orderId: order.id },
+      })
+    }
 
     return NextResponse.json({ id: order.id }, { status: 201 })
   } catch (e) {
