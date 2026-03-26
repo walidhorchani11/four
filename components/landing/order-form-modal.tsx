@@ -12,9 +12,10 @@ export function OrderFormModal() {
   const [formData, setFormData] = useState({
     nom: '',
     telephone: '',
-    ville: '',
+    adresse: '',
     commentaire: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -44,10 +45,10 @@ export function OrderFormModal() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.nom || !formData.telephone || !formData.ville) {
+    if (!formData.nom || !formData.telephone || !formData.adresse) {
       alert('Veuillez remplir tous les champs obligatoires')
       return
     }
@@ -57,34 +58,56 @@ export function OrderFormModal() {
       return
     }
 
-    setIsSubmitted(true)
-    
-    // Send to WhatsApp or backend
-    const message = `
+    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+    if (!whatsappNumber) {
+      alert("Numéro WhatsApp manquant. Veuillez configurer NEXT_PUBLIC_WHATSAPP_NUMBER.")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: formData.nom,
+          telephone: formData.telephone,
+          adresse: formData.adresse,
+          commentaire: formData.commentaire || null,
+          productId: finalProduct.id,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string }
+        alert(data.error ?? 'Impossible d\'enregistrer la commande. Réessayez.')
+        return
+      }
+
+      setIsSubmitted(true)
+
+      const message = `
 Nouvelle commande:
 Nom: ${formData.nom}
 Téléphone: ${formData.telephone}
-Ville: ${formData.ville}
+Adresse: ${formData.adresse}
 Produit: ${finalProduct.name}
 Prix: ${finalProduct.price} DT
 Commentaire: ${formData.commentaire || 'Aucun'}
     `.trim()
 
-    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-    if (!whatsappNumber) {
-      alert("Numéro WhatsApp manquant. Veuillez configurer NEXT_PUBLIC_WHATSAPP_NUMBER.")
-      setIsSubmitted(false)
-      return
-    }
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
 
-    setTimeout(() => {
-      closeOrder()
-      setIsSubmitted(false)
-      setFormData({ nom: '', telephone: '', ville: '', commentaire: '' })
-      setChosenProductId('')
-    }, 3000)
+      setTimeout(() => {
+        closeOrder()
+        setIsSubmitted(false)
+        setFormData({ nom: '', telephone: '', adresse: '', commentaire: '' })
+        setChosenProductId('')
+      }, 3000)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
@@ -157,17 +180,17 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     />
                   </div>
 
-                  {/* Ville */}
+                  {/* Adresse */}
                   <div>
-                    <label htmlFor="ville-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ville *
+                    <label htmlFor="adresse-input" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Adresse *
                     </label>
                     <input
-                      id="ville-input"
+                      id="adresse-input"
                       type="text"
-                      name="ville"
-                      placeholder="Votre ville"
-                      value={formData.ville}
+                      name="adresse"
+                      placeholder="Adresse complète (ville, rue, etc.)"
+                      value={formData.adresse}
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none transition-colors bg-gray-50 text-gray-900"
@@ -236,9 +259,10 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 rounded-lg transition-all duration-200 mt-6 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none text-white font-bold py-4 rounded-lg transition-all duration-200 mt-6 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
-                    👉 Confirmer ma commande
+                    {isSubmitting ? 'Enregistrement…' : '👉 Confirmer ma commande'}
                   </button>
 
                   {/* Trust Text */}

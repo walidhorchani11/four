@@ -1,0 +1,26 @@
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  nom         String
+  telephone   String
+  adresse     String
+  commentaire String?
+
+  productId   String   @map("product_id")
+  productName String   @map("product_name")
+  priceDt     Int      @map("price_dt")
+  currency    String   @default("TND")
+
+  @@map("orders")
+}
