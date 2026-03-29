@@ -42,9 +42,6 @@ export function Header() {
             <a href="#avantages" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Avantages
             </a>
-            <a href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-              Temoignages
-            </a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               FAQ
             </a>
@@ -89,13 +86,6 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Avantages
-              </a>
-              <a
-                href="#"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Temoignages
               </a>
               <a
                 href="#faq"

@@ -3,7 +3,6 @@ import { HeroSection } from "@/components/landing/hero-section"
 import { ProblemSection } from "@/components/landing/problem-section"
 import { BenefitsSection } from "@/components/landing/benefits-section"
 import { ProductsSection } from "@/components/landing/products-section"
-import { TestimonialsSection } from "@/components/landing/testimonials-section"
 import { ComparisonSection } from "@/components/landing/comparison-section"
 import { UrgencySection } from "@/components/landing/urgency-section"
 import { FAQSection } from "@/components/landing/faq-section"
@@ -20,7 +19,6 @@ export default function Home() {
         <ProblemSection />
         <BenefitsSection />
         <ProductsSection />
-        <TestimonialsSection />
         <ComparisonSection />
         <UrgencySection />
         <FAQSection />
