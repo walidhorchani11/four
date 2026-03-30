@@ -3,10 +3,39 @@
 import { useTranslations } from "next-intl"
 import { Flame, Phone, MessageCircle, MapPin } from "lucide-react"
 
+function digitsFromPhoneEnv(): string {
+  const wa = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "")
+  if (wa) return wa
+  return (process.env.NEXT_PUBLIC_PHONE ?? "").replace(/\D/g, "")
+}
+
+/** Libellé : NEXT_PUBLIC_PHONE tel quel si défini, sinon +216 XX XXX XXX depuis WhatsApp. */
+function formatContactPhoneForFooter(): string | null {
+  const explicit = process.env.NEXT_PUBLIC_PHONE?.trim()
+  if (explicit) return explicit
+  const digits = digitsFromPhoneEnv()
+  if (!digits) return null
+  let n = digits
+  if (n.startsWith("216")) n = n.slice(3)
+  if (n.length >= 8) {
+    return `+216 ${n.slice(0, 2)} ${n.slice(2, 5)} ${n.slice(5)}`
+  }
+  return `+216 ${n}`
+}
+
+function telHrefFromEnv(): string | undefined {
+  const d = digitsFromPhoneEnv()
+  if (!d) return undefined
+  const full = d.startsWith("216") ? d : `216${d}`
+  return `tel:+${full}`
+}
+
 export function Footer() {
   const t = useTranslations("footer")
   const tCommon = useTranslations("common")
   const year = new Date().getFullYear()
+  const phoneDisplay = formatContactPhoneForFooter() ?? tCommon("phonePlaceholder")
+  const telHref = telHrefFromEnv()
 
   return (
     <footer className="border-t border-border bg-card py-12">
@@ -22,7 +51,13 @@ export function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-primary" />
-              <span>{tCommon("phonePlaceholder")}</span>
+              {telHref ? (
+                <a href={telHref} className="hover:text-foreground transition-colors">
+                  {phoneDisplay}
+                </a>
+              ) : (
+                <span>{phoneDisplay}</span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-green-500" />

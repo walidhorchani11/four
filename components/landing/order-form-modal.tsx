@@ -231,17 +231,20 @@ export function OrderFormModal() {
   if (!isOpen) return null
 
   return (
-    <>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-300"
+      onClick={closeOrder}
+      role="presentation"
+    >
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300"
-        onClick={closeOrder}
-        aria-hidden
-      />
-
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-0">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-300">
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-300"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="order-modal-title"
+      >
           <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-200 bg-white rounded-t-2xl">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 id="order-modal-title" className="text-2xl font-bold text-gray-900">
               {isSubmitted ? tOrder('titleThanks') : tOrder('title')}
             </h2>
             <button
@@ -396,8 +399,7 @@ export function OrderFormModal() {
               </div>
             )}
           </div>
-        </div>
       </div>
-    </>
+    </div>
   )
 }
