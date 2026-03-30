@@ -1,7 +1,10 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { Flame, Phone, MessageCircle, MapPin } from "lucide-react"
+import { Flame, Phone, MessageCircle, MapPin, Facebook } from "lucide-react"
+
+const DEFAULT_FACEBOOK_URL =
+  "https://www.facebook.com/profile.php?id=61572707513694"
 
 function digitsFromPhoneEnv(): string {
   const wa = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "")
@@ -36,6 +39,8 @@ export function Footer() {
   const year = new Date().getFullYear()
   const phoneDisplay = formatContactPhoneForFooter() ?? tCommon("phonePlaceholder")
   const telHref = telHrefFromEnv()
+  const facebookUrl =
+    process.env.NEXT_PUBLIC_FACEBOOK_URL?.trim() || DEFAULT_FACEBOOK_URL
 
   return (
     <footer className="border-t border-border bg-card py-12">
@@ -67,6 +72,15 @@ export function Footer() {
               <MapPin className="h-4 w-4 text-primary" />
               <span>{t("country")}</span>
             </div>
+            <a
+              href={facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:text-foreground transition-colors"
+            >
+              <Facebook className="h-4 w-4 text-[#1877F2]" aria-hidden />
+              <span>{t("facebook")}</span>
+            </a>
           </div>
         </div>
 
