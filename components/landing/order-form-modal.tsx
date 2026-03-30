@@ -6,6 +6,12 @@ import { useOrder } from './order-context'
 import { X } from 'lucide-react'
 import { productsCatalog } from './products-catalog'
 import { getLeadSessionId, rotateLeadSessionId } from '@/lib/lead-session'
+import {
+  loadOrderFormDraft,
+  saveOrderFormDraft,
+  clearOrderFormDraft,
+  emptyForm,
+} from '@/lib/order-form-draft'
 
 function hasMeaningfulLeadData(params: {
   nom: string
@@ -45,6 +51,8 @@ export function OrderFormModal() {
 
   const orderJustCompletedRef = useRef(false)
   const prevIsOpenRef = useRef(false)
+  /** Évite d'écraser sessionStorage avec un formulaire vide au 1er rendu avant restauration. */
+  const skipPersistAfterOpenRef = useRef(false)
 
   const productLabel = (id: string) => tProducts(`items.${id}.name`)
 
@@ -63,8 +71,21 @@ export function OrderFormModal() {
 
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      setFormData({ nom: '', telephone: '', adresse: '', commentaire: '' })
+      skipPersistAfterOpenRef.current = true
+      const draft = loadOrderFormDraft()
+      const base = draft ?? emptyForm()
+      setFormData({
+        nom: base.nom,
+        telephone: base.telephone,
+        adresse: base.adresse,
+        commentaire: base.commentaire,
+      })
       setIsSubmitted(false)
+      if (selectedProductId) {
+        setChosenProductId(selectedProductId)
+      } else {
+        setChosenProductId(base.chosenProductId)
+      }
     }
     if (!isOpen && prevIsOpenRef.current) {
       const snap = formSnapshotRef.current
@@ -103,9 +124,16 @@ export function OrderFormModal() {
   }, [isOpen, selectedProductId])
 
   useEffect(() => {
-    if (!isOpen) return
-    setChosenProductId(selectedProductId ?? '')
-  }, [isOpen, selectedProductId])
+    if (!isOpen || isSubmitted) return
+    if (skipPersistAfterOpenRef.current) {
+      skipPersistAfterOpenRef.current = false
+      return
+    }
+    saveOrderFormDraft({
+      ...formData,
+      chosenProductId,
+    })
+  }, [formData, chosenProductId, isOpen, isSubmitted])
 
   const productFromContext =
     selectedProductId ? productsCatalog.find((p) => p.id === selectedProductId) ?? null : null
@@ -216,6 +244,7 @@ export function OrderFormModal() {
 
       rotateLeadSessionId()
       setSessionId(getLeadSessionId())
+      clearOrderFormDraft()
 
       setTimeout(() => {
         closeOrder()
