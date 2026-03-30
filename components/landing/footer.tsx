@@ -7,15 +7,11 @@ const DEFAULT_FACEBOOK_URL =
   "https://www.facebook.com/profile.php?id=61572707513694"
 
 function digitsFromPhoneEnv(): string {
-  const wa = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "")
-  if (wa) return wa
-  return (process.env.NEXT_PUBLIC_PHONE ?? "").replace(/\D/g, "")
+  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "")
 }
 
-/** Libellé : NEXT_PUBLIC_PHONE tel quel si défini, sinon +216 XX XXX XXX depuis WhatsApp. */
+/** Libellé formaté à partir de NEXT_PUBLIC_WHATSAPP_NUMBER. */
 function formatContactPhoneForFooter(): string | null {
-  const explicit = process.env.NEXT_PUBLIC_PHONE?.trim()
-  if (explicit) return explicit
   const digits = digitsFromPhoneEnv()
   if (!digits) return null
   let n = digits
@@ -66,7 +62,13 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-green-500" />
-              <span>{t("whatsappAvailable")}</span>
+              {telHref ? (
+                <a href={telHref} className="hover:text-foreground transition-colors">
+                  {t("whatsapp")}: {phoneDisplay}
+                </a>
+              ) : (
+                <span>{t("whatsapp")}: {phoneDisplay}</span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
