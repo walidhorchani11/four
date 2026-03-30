@@ -16,6 +16,47 @@ const bodySchema = z.object({
   clientSessionId: z.string().uuid().optional(),
 })
 
+async function sendTelegramOrderNotification(params: {
+  orderId: string
+  createdAt: Date
+  nom: string
+  telephone: string
+  adresse: string
+  commentaire: string | null
+  productName: string
+  priceDt: number
+}) {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return
+
+  const lines = [
+    'Nouvelle commande confirmee',
+    `ID: ${params.orderId}`,
+    `Date: ${params.createdAt.toISOString()}`,
+    `Nom: ${params.nom}`,
+    `Telephone: ${params.telephone}`,
+    `Adresse: ${params.adresse}`,
+    `Produit: ${params.productName}`,
+    `Prix: ${params.priceDt} DT`,
+    `Commentaire: ${params.commentaire ?? 'Aucun'}`,
+  ]
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: lines.join('\n'),
+    }),
+  })
+
+  if (!res.ok) {
+    const payload = await res.text().catch(() => '')
+    throw new Error(`Telegram sendMessage failed: ${res.status} ${payload}`)
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const json = await request.json()
@@ -54,6 +95,19 @@ export async function POST(request: Request) {
         data: { status: 'converted', orderId: order.id },
       })
     }
+
+    void sendTelegramOrderNotification({
+      orderId: order.id,
+      createdAt: order.createdAt,
+      nom: order.nom,
+      telephone: order.telephone,
+      adresse: order.adresse,
+      commentaire: order.commentaire,
+      productName: order.productName,
+      priceDt: order.priceDt,
+    }).catch((err) => {
+      console.error('[Telegram notification]', err)
+    })
 
     return NextResponse.json({ id: order.id }, { status: 201 })
   } catch (e) {

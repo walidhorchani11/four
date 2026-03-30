@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import { useOrder } from './order-context'
 import { X } from 'lucide-react'
 import { productsCatalog } from './products-catalog'
@@ -219,6 +220,7 @@ export function OrderFormModal() {
 
       orderJustCompletedRef.current = true
       setIsSubmitted(true)
+      toast.success(tOrder('successTitle'))
 
       const productDisplayName = productLabel(finalProduct.id)
       const message = tOrder('whatsappMessage', {

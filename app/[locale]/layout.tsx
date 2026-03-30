@@ -7,6 +7,7 @@ import { hasLocale } from 'next-intl'
 import { Noto_Sans } from 'next/font/google'
 import { OrderProvider } from '@/components/landing/order-context'
 import { OrderFormModal } from '@/components/landing/order-form-modal'
+import { Toaster } from '@/components/ui/sonner'
 import { routing } from '@/i18n/routing'
 import '../globals.css'
 
@@ -56,6 +57,7 @@ export default async function LocaleLayout({
           <OrderProvider>
             {children}
             <OrderFormModal />
+            <Toaster richColors position="top-center" />
             <Analytics />
           </OrderProvider>
         </NextIntlClientProvider>
