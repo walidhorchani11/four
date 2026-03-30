@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { jsonServerError } from '@/lib/prisma-api-error'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   clientSessionId: z.string().uuid(),
   markWhatsappOpened: z.boolean().optional(),
-  nom: z.string().trim().max(200).optional().nullable(),
-  telephone: z.string().trim().max(40).optional().nullable(),
-  adresse: z.string().trim().max(500).optional().nullable(),
-  commentaire: z.string().trim().max(2000).optional().nullable(),
-  productId: z.string().trim().max(100).optional().nullable(),
+  /** nullish évite les rejets silencieux JSON null + z.string() */
+  nom: z.string().trim().max(200).nullish(),
+  telephone: z.string().trim().max(40).nullish(),
+  adresse: z.string().trim().max(500).nullish(),
+  commentaire: z.string().trim().max(2000).nullish(),
+  productId: z.string().trim().max(100).nullish(),
   status: z.enum(['draft', 'dropped']).optional(),
 })
 
@@ -24,7 +29,10 @@ export async function POST(request: Request) {
     const json = await request.json()
     const parsed = bodySchema.safeParse(json)
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Données invalides', issues: parsed.error.flatten() },
+        { status: 400 }
+      )
     }
 
     const { clientSessionId, markWhatsappOpened } = parsed.data
@@ -51,30 +59,31 @@ export async function POST(request: Request) {
     const productId = emptyToNull(parsed.data.productId ?? undefined)
     const status = parsed.data.status ?? 'draft'
 
-    await prisma.lead.upsert({
-      where: { clientSessionId },
-      create: {
-        clientSessionId,
-        nom,
-        telephone,
-        adresse,
-        commentaire,
-        productId,
-        status,
-      },
-      update: {
-        nom,
-        telephone,
-        adresse,
-        commentaire,
-        productId,
-        status,
-      },
-    })
+    const data = {
+      nom,
+      telephone,
+      adresse,
+      commentaire,
+      productId,
+      status,
+    }
+
+    if (existing) {
+      await prisma.lead.update({
+        where: { clientSessionId },
+        data,
+      })
+    } else {
+      await prisma.lead.create({
+        data: {
+          clientSessionId,
+          ...data,
+        },
+      })
+    }
 
     return NextResponse.json({ ok: true })
   } catch (e) {
-    console.error('[POST /api/leads]', e)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    return jsonServerError(e, '[POST /api/leads]')
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useOrder } from './order-context'
 import { X } from 'lucide-react'
 import { productsCatalog } from './products-catalog'
@@ -21,6 +22,8 @@ function hasMeaningfulLeadData(params: {
 }
 
 export function OrderFormModal() {
+  const tOrder = useTranslations('order')
+  const tProducts = useTranslations('products')
   const { isOpen, closeOrder, selectedProductId } = useOrder()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [chosenProductId, setChosenProductId] = useState<string>('')
@@ -42,6 +45,8 @@ export function OrderFormModal() {
 
   const orderJustCompletedRef = useRef(false)
   const prevIsOpenRef = useRef(false)
+
+  const productLabel = (id: string) => tProducts(`items.${id}.name`)
 
   useEffect(() => {
     setSessionId(getLeadSessionId())
@@ -98,8 +103,6 @@ export function OrderFormModal() {
   }, [isOpen, selectedProductId])
 
   useEffect(() => {
-    // If the order was opened from a product card, the context already has the product.
-    // Otherwise, we let the user pick it in the modal.
     if (!isOpen) return
     setChosenProductId(selectedProductId ?? '')
   }, [isOpen, selectedProductId])
@@ -134,10 +137,10 @@ export function OrderFormModal() {
     if (!isOpen || !sessionId || isSubmitted) return
     const productId = finalProduct?.id ?? null
     if (!hasMeaningfulLeadData({ ...formData, productId })) return
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       saveLeadDraft()
     }, 1500)
-    return () => window.clearTimeout(t)
+    return () => window.clearTimeout(timer)
   }, [formData, finalProduct, isOpen, sessionId, isSubmitted, saveLeadDraft])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -147,20 +150,20 @@ export function OrderFormModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.nom || !formData.telephone || !formData.adresse) {
-      alert('Veuillez remplir tous les champs obligatoires')
+      alert(tOrder('alertRequired'))
       return
     }
 
     if (!finalProduct) {
-      alert('Veuillez choisir un produit')
+      alert(tOrder('alertProduct'))
       return
     }
 
     const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
     if (!whatsappNumber) {
-      alert("Numéro WhatsApp manquant. Veuillez configurer NEXT_PUBLIC_WHATSAPP_NUMBER.")
+      alert(tOrder('alertWhatsapp'))
       return
     }
 
@@ -182,22 +185,22 @@ export function OrderFormModal() {
 
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string }
-        alert(data.error ?? 'Impossible d\'enregistrer la commande. Réessayez.')
+        alert(data.error ?? tOrder('alertOrderError'))
         return
       }
 
       orderJustCompletedRef.current = true
       setIsSubmitted(true)
 
-      const message = `
-Nouvelle commande:
-Nom: ${formData.nom}
-Téléphone: ${formData.telephone}
-Adresse: ${formData.adresse}
-Produit: ${finalProduct.name}
-Prix: ${finalProduct.price} DT
-Commentaire: ${formData.commentaire || 'Aucun'}
-    `.trim()
+      const productDisplayName = productLabel(finalProduct.id)
+      const message = tOrder('whatsappMessage', {
+        nom: formData.nom,
+        telephone: formData.telephone,
+        adresse: formData.adresse,
+        product: productDisplayName,
+        price: finalProduct.price,
+        commentaire: formData.commentaire?.trim() ? formData.commentaire : tOrder('none'),
+      })
 
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
       window.open(whatsappUrl, '_blank')
@@ -229,48 +232,45 @@ Commentaire: ${formData.commentaire || 'Aucun'}
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300"
         onClick={closeOrder}
+        aria-hidden
       />
 
-      {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-0">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-300">
-          {/* Header */}
           <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-200 bg-white rounded-t-2xl">
             <h2 className="text-2xl font-bold text-gray-900">
-              {isSubmitted ? '✅ Merci!' : '🛒 Finaliser votre commande'}
+              {isSubmitted ? tOrder('titleThanks') : tOrder('title')}
             </h2>
             <button
+              type="button"
               onClick={closeOrder}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-              aria-label="Fermer"
+              aria-label={tOrder('close')}
             >
               <X size={24} />
             </button>
           </div>
 
-          {/* Content */}
           <div className="p-6">
             {!isSubmitted ? (
               <>
                 <p className="text-gray-600 mb-6 font-medium">
-                  Remplissez ce formulaire en moins de 10 secondes
+                  {tOrder('intro')}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Nom */}
                   <div>
                     <label htmlFor="nom-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nom complet *
+                      {tOrder('name')} *
                     </label>
                     <input
                       id="nom-input"
                       type="text"
                       name="nom"
-                      placeholder="Votre nom"
+                      placeholder={tOrder('namePh')}
                       value={formData.nom}
                       onChange={handleInputChange}
                       required
@@ -278,16 +278,15 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     />
                   </div>
 
-                  {/* Téléphone */}
                   <div>
                     <label htmlFor="tel-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Numéro de téléphone *
+                      {tOrder('phone')} *
                     </label>
                     <input
                       id="tel-input"
                       type="tel"
                       name="telephone"
-                      placeholder="Ex: 20 123 456"
+                      placeholder={tOrder('phonePh')}
                       value={formData.telephone}
                       onChange={handleInputChange}
                       required
@@ -295,16 +294,15 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     />
                   </div>
 
-                  {/* Adresse */}
                   <div>
                     <label htmlFor="adresse-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Adresse *
+                      {tOrder('address')} *
                     </label>
                     <input
                       id="adresse-input"
                       type="text"
                       name="adresse"
-                      placeholder="Adresse complète (ville, rue, etc.)"
+                      placeholder={tOrder('addressPh')}
                       value={formData.adresse}
                       onChange={handleInputChange}
                       required
@@ -312,22 +310,21 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     />
                   </div>
 
-                  {/* Produit */}
                   <div>
                     <label htmlFor="produit-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Produit *
+                      {tOrder('product')} *
                     </label>
                     {isProductPreselected && productFromContext ? (
                       <>
                         <input
                           id="produit-input"
                           type="text"
-                          value={productFromContext.name}
+                          value={productLabel(productFromContext.id)}
                           readOnly
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
                         />
                         <p className="mt-2 text-sm text-gray-700 font-semibold">
-                          Prix: {productFromContext.price} DT
+                          {tOrder('price', { price: productFromContext.price })}
                         </p>
                       </>
                     ) : (
@@ -339,31 +336,30 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                           required
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
                         >
-                          <option value="">Choisir un produit...</option>
+                          <option value="">{tOrder('productPlaceholder')}</option>
                           {productsCatalog.map((p) => (
                             <option key={p.id} value={p.id}>
-                              {p.name} - {p.price} DT
+                              {productLabel(p.id)} — {p.price} DT
                             </option>
                           ))}
                         </select>
                         {finalProduct ? (
                           <p className="mt-2 text-sm text-gray-700 font-semibold">
-                            Prix: {finalProduct.price} DT
+                            {tOrder('price', { price: finalProduct.price })}
                           </p>
                         ) : null}
                       </>
                     )}
                   </div>
 
-                  {/* Commentaire */}
                   <div>
                     <label htmlFor="comment-input" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Commentaire (facultatif)
+                      {tOrder('comment')}
                     </label>
                     <textarea
                       id="comment-input"
                       name="commentaire"
-                      placeholder="Détails supplémentaires (facultatif)"
+                      placeholder={tOrder('commentPh')}
                       value={formData.commentaire}
                       onChange={handleInputChange}
                       rows={3}
@@ -371,18 +367,16 @@ Commentaire: ${formData.commentaire || 'Aucun'}
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none text-white font-bold py-4 rounded-lg transition-all duration-200 mt-6 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
-                    {isSubmitting ? 'Enregistrement…' : '👉 Confirmer ma commande'}
+                    {isSubmitting ? tOrder('submitting') : tOrder('submit')}
                   </button>
 
-                  {/* Trust Text */}
                   <p className="text-center text-sm text-gray-600 mt-4">
-                    🔒 Vos informations restent confidentielles
+                    {tOrder('trust')}
                   </p>
                 </form>
               </>
@@ -390,14 +384,14 @@ Commentaire: ${formData.commentaire || 'Aucun'}
               <div className="text-center py-8">
                 <div className="text-5xl mb-4">✅</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Commande envoyée avec succès !
+                  {tOrder('successTitle')}
                 </h3>
                 <p className="text-gray-600 mb-2">
-                  📞 Notre équipe vous contactera rapidement pour confirmer votre commande.
+                  {tOrder('successBody')}
                 </p>
                 <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-green-800 font-semibold mb-2">✓ Paiement à la livraison</p>
-                  <p className="text-green-800 font-semibold">✓ Aucun paiement en ligne requis</p>
+                  <p className="text-green-800 font-semibold mb-2">{tOrder('successPay1')}</p>
+                  <p className="text-green-800 font-semibold">{tOrder('successPay2')}</p>
                 </div>
               </div>
             )}

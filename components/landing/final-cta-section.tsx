@@ -1,11 +1,16 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Flame, ShoppingCart, MessageCircle } from "lucide-react"
 import { useOrder } from "./order-context"
+import { getWhatsAppHref } from "@/lib/whatsapp"
 
 export function FinalCTASection() {
+  const t = useTranslations("finalCta")
   const { openOrder } = useOrder()
+  const waHref = getWhatsAppHref()
+
   return (
     <section className="py-20 bg-gradient-to-br from-foreground to-foreground/90 text-primary-foreground">
       <div className="container mx-auto px-4">
@@ -15,31 +20,30 @@ export function FinalCTASection() {
               <Flame className="h-8 w-8 text-primary" />
             </div>
           </div>
-          
+
           <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-            Passez au four a gaz des aujourd{"'"}hui
+            {t("title")}
           </h2>
-          
+
           <p className="mb-8 text-lg text-primary-foreground/80">
-            Ne perdez plus de temps ni d{"'"}argent avec un four electrique. Rejoignez nos clients satisfaits et decouvrez la puissance du gaz.
+            {t("subtitle")}
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button 
+            <Button
               onClick={() => openOrder()}
-              size="lg" 
+              size="lg"
               className="group gap-2 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+              type="button"
             >
               <ShoppingCart className="h-5 w-5" />
-              Commander maintenant
+              {t("orderNow")}
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="group gap-2 text-lg border-2 border-green-500 bg-green-500 text-white hover:bg-green-600"
-            >
-              <MessageCircle className="h-5 w-5" />
-              WhatsApp
+            <Button size="lg" variant="outline" className="group gap-2 text-lg border-2 border-green-500 bg-green-500 text-white hover:bg-green-600" asChild>
+              <a href={waHref} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-5 w-5" />
+                {t("whatsapp")}
+              </a>
             </Button>
           </div>
         </div>

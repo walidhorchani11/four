@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { productsCatalog } from '@/components/landing/products-catalog'
+import { jsonServerError } from '@/lib/prisma-api-error'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   nom: z.string().trim().min(1).max(200),
@@ -39,7 +43,7 @@ export async function POST(request: Request) {
         adresse,
         commentaire: commentaire?.length ? commentaire : null,
         productId,
-        productName: product.name,
+        productName: product.nameFr,
         priceDt,
       },
     })
@@ -53,7 +57,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ id: order.id }, { status: 201 })
   } catch (e) {
-    console.error('[POST /api/orders]', e)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    return jsonServerError(e, '[POST /api/orders]')
   }
 }

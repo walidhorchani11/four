@@ -3,6 +3,10 @@ import { config } from "dotenv"
 config({ path: ".env.local" })
 config({ path: ".env" })
 import { defineConfig } from "prisma/config"
+import { normalizeDatabaseUrlForPg } from "./lib/database-url"
+
+const rawUrl = process.env["DATABASE_URL"]
+const datasourceUrl = rawUrl ? normalizeDatabaseUrlForPg(rawUrl) : undefined
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -10,6 +14,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: datasourceUrl,
   },
 });

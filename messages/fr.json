@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "title": "Fours à gaz Tunisie | Cuisson rapide et économique",
+    "description": "Découvrez nos fours à gaz performants pour la maison et les petits commerces. Livraison rapide en Tunisie, paiement à la livraison, garantie incluse."
+  },
+  "common": {
+    "brand": "Fours Gaz",
+    "brandFull": "Fours Gaz Tunisie",
+    "currency": "DT",
+    "phonePlaceholder": "+216 XX XXX XXX",
+    "toggleMenu": "Ouvrir le menu"
+  },
+  "nav": {
+    "products": "Produits",
+    "benefits": "Avantages",
+    "faq": "FAQ",
+    "order": "Commander"
+  },
+  "lang": {
+    "ar": "العربية",
+    "fr": "Français",
+    "switchTo": "Langue"
+  },
+  "hero": {
+    "badge": "Top vente en Tunisie",
+    "title": "Cuisinez plus vite et <highlight>économisez</highlight> avec un four à gaz performant",
+    "subtitle": "Cuisson rapide, consommation économique et résultats parfaits. Idéal pour la maison et les petits commerces.",
+    "orderNow": "Commander maintenant",
+    "contactWhatsApp": "Contacter sur WhatsApp",
+    "trust1": "Livraison rapide en Tunisie",
+    "trust2": "Paiement à la livraison",
+    "trust3": "Garantie incluse",
+    "imageAlt": "Four à gaz professionnel",
+    "floatingTitle": "+100 clients",
+    "floatingSubtitle": "satisfaits"
+  },
+  "problem": {
+    "problemTitle": "Fatigué des coupures d'électricité et des fours lents ?",
+    "problem1": "Les fours électriques consomment beaucoup",
+    "problem2": "Dépendent totalement de l'électricité",
+    "problem3": "Temps de chauffe très long",
+    "problem4": "Facture d'électricité élevée",
+    "solutionTitle": "Notre solution : le four à gaz",
+    "solution1": "Cuisson rapide et puissante",
+    "solution2": "Fonctionne sans électricité",
+    "solution3": "Économies sur la facture",
+    "solution4": "Résultats professionnels"
+  },
+  "benefits": {
+    "title": "Pourquoi choisir un four à gaz ?",
+    "subtitle": "Découvrez tous les avantages qui font du four à gaz le choix idéal",
+    "items": {
+      "heat": { "title": "Chauffe rapide", "desc": "Puissance élevée pour une montée en température immédiate" },
+      "money": { "title": "Économie d'argent", "desc": "Réduisez votre facture d'électricité de manière significative" },
+      "noElectric": { "title": "Sans électricité", "desc": "Fonctionne même en cas de coupure de courant" },
+      "even": { "title": "Cuisson uniforme", "desc": "Parfait pour pain, pizza, pâtisserie et plus encore" },
+      "durable": { "title": "Durable et robuste", "desc": "Construction solide pour une utilisation intensive" },
+      "easy": { "title": "Facile à utiliser", "desc": "Prise en main simple et intuitive pour tous" }
+    }
+  },
+  "products": {
+    "badge": "Nos produits",
+    "title": "Nos modèles disponibles",
+    "subtitle": "Choisissez le four qui correspond à vos besoins",
+    "orderNow": "Commander maintenant",
+    "badges": {
+      "popular": "Populaire",
+      "bestseller": "Meilleure vente",
+      "premium": "Premium"
+    },
+    "items": {
+      "four_1_etage": {
+        "name": "Four 1 étage",
+        "capacity": "1 étage",
+        "usage": "Usage domestique",
+        "gasType": "Butane/Propane",
+        "features": ["Chauffe rapide", "Compact", "Facile à installer"]
+      },
+      "four_2_etages": {
+        "name": "Four 2 étages",
+        "capacity": "2 étages",
+        "usage": "Maison & commerce",
+        "gasType": "Butane/Propane",
+        "features": ["Grande capacité", "Multi-niveaux", "Usage intensif"]
+      },
+      "four_3_etages": {
+        "name": "Four 3 étages",
+        "capacity": "3 étages",
+        "usage": "Pizzeria & boulangerie",
+        "gasType": "Butane/Propane",
+        "features": ["Pierre réfractaire", "Haute température", "Pro"]
+      }
+    }
+  },
+  "comparison": {
+    "title": "Pourquoi notre four est meilleur ?",
+    "subtitle": "Comparez et voyez la différence",
+    "colFeature": "Caractéristique",
+    "colGas": "Notre four à gaz",
+    "colElectric": "Four électrique",
+    "rows": {
+      "power": { "feature": "Dépendance électricité", "gas": "Non", "electric": "Oui" },
+      "consumption": { "feature": "Consommation", "gas": "Économique", "electric": "Élevée" },
+      "speed": { "feature": "Vitesse de cuisson", "gas": "Rapide", "electric": "Lente" },
+      "reliability": { "feature": "Fiabilité", "gas": "Excellente", "electric": "Variable" },
+      "cost": { "feature": "Coût sur le long terme", "gas": "Faible", "electric": "Élevé" }
+    }
+  },
+  "urgency": {
+    "badge": "Offre limitée",
+    "title": "Stock limité cette semaine",
+    "subtitle": "Commandez maintenant avant rupture. Profitez de nos prix exceptionnels !",
+    "delivery": "Livraison 24-48h",
+    "today": "Commandez aujourd'hui",
+    "orderNow": "Commander maintenant",
+    "whatsapp": "Contacter sur WhatsApp"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "subtitle": "Trouvez les réponses à vos questions",
+    "items": [
+      {
+        "q": "Comment se fait la livraison ?",
+        "a": "Nous livrons dans toute la Tunisie en 24-48h. Vous recevrez un appel de confirmation avant la livraison."
+      },
+      {
+        "q": "Quels modes de paiement acceptez-vous ?",
+        "a": "Nous acceptons le paiement à la livraison (cash), avec WafaCash, IZI paiement, Poste ou virement bancaire."
+      },
+      {
+        "q": "Le four est-il facile à utiliser ?",
+        "a": "Absolument ! Nos fours sont conçus pour une utilisation simple et sécurisée."
+      },
+      {
+        "q": "Quel type de gaz utiliser ?",
+        "a": "Nos fours fonctionnent avec du butane ou du propane, les bouteilles de gaz standard disponibles partout en Tunisie."
+      },
+      {
+        "q": "Peut-on l'utiliser pour un commerce ?",
+        "a": "Oui, nos modèles professionnels sont parfaits pour les boulangeries, pâtisseries, pizzerias et snacks."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Passez au four à gaz dès aujourd'hui",
+    "subtitle": "Ne perdez plus de temps ni d'argent avec un four électrique. Rejoignez nos clients satisfaits et découvrez la puissance du gaz.",
+    "orderNow": "Commander maintenant",
+    "whatsapp": "WhatsApp"
+  },
+  "footer": {
+    "whatsappAvailable": "WhatsApp disponible",
+    "country": "Tunisie",
+    "rights": "© {year} Fours Gaz Tunisie. Tous droits réservés."
+  },
+  "whatsappFab": {
+    "aria": "Contacter sur WhatsApp"
+  },
+  "order": {
+    "title": "Finaliser votre commande",
+    "titleThanks": "Merci !",
+    "intro": "Remplissez ce formulaire en moins de 10 secondes",
+    "close": "Fermer",
+    "name": "Nom complet",
+    "namePh": "Votre nom",
+    "phone": "Numéro de téléphone",
+    "phonePh": "Ex : 20 123 456",
+    "address": "Adresse",
+    "addressPh": "Adresse complète (ville, rue, etc.)",
+    "product": "Produit",
+    "productPlaceholder": "Choisir un produit…",
+    "price": "Prix : {price} DT",
+    "comment": "Commentaire (facultatif)",
+    "commentPh": "Détails supplémentaires (facultatif)",
+    "submit": "Confirmer ma commande",
+    "submitting": "Enregistrement…",
+    "trust": "Vos informations restent confidentielles",
+    "successTitle": "Commande envoyée avec succès !",
+    "successBody": "Notre équipe vous contactera rapidement pour confirmer votre commande.",
+    "successPay1": "Paiement à la livraison",
+    "successPay2": "Aucun paiement en ligne requis",
+    "alertRequired": "Veuillez remplir tous les champs obligatoires",
+    "alertProduct": "Veuillez choisir un produit",
+    "alertWhatsapp": "Numéro WhatsApp manquant. Veuillez configurer NEXT_PUBLIC_WHATSAPP_NUMBER.",
+    "alertOrderError": "Impossible d'enregistrer la commande. Réessayez.",
+    "none": "Aucun",
+    "whatsappMessage": "Nouvelle commande :\nNom : {nom}\nTéléphone : {telephone}\nAdresse : {adresse}\nProduit : {product}\nPrix : {price} DT\nCommentaire : {commentaire}"
+  }
+}
