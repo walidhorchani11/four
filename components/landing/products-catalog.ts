@@ -14,14 +14,14 @@ export const productsCatalog: ProductCatalogItem[] = [
   {
     id: 'four_1_etage',
     nameFr: 'Four 1 étage',
-    image: '/images/four1.jpg',
+    image: '/images/f1.webp',
     price: '1100',
     badge: 'popular',
   },
   {
     id: 'four_2_etages',
     nameFr: 'Four 2 étages',
-    image: '/images/four-2-etage.jpg',
+    image: '/images/f2.webp',
     price: '1300',
     oldPrice: '1350',
     badge: 'bestseller',

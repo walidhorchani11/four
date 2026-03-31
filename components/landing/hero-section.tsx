@@ -76,7 +76,7 @@ export function HeroSection() {
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
               <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-card shadow-2xl">
                 <Image
-                  src="/images/four-dore.jpeg"
+                  src="/images/Fh.webp"
                   alt={t("imageAlt")}
                   width={600}
                   height={600}
