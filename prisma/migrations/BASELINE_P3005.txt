@@ -1,0 +1,20 @@
+Erreur P3005 (schéma non vide, première migration) — procédure
+
+1) Aligner la base avec le schéma actuel (colonnes order_id et whatsapp_opened_at supprimées sur leads)
+
+   Option A — Exécuter sur Neon (SQL Editor) le fichier :
+   20260331120000_cleanup_lead_order_whatsapp/baseline-manual.sql
+   (IF EXISTS : idempotent si déjà appliqué)
+
+   Option B — Si tu as déjà fait "prisma db push" avec le schema.prisma nettoyé,
+   les colonnes sont peut-être déjà absentes : passer à l’étape 2.
+
+2) Enregistrer la migration comme appliquée SANS la ré-exécuter :
+
+   npm run db:migrate:resolve
+
+3) Vérifier :
+
+   npm run db:migrate:deploy
+
+   Attendu : "No pending migrations" ou équivalent.

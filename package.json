@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint .",
     "postinstall": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:resolve": "prisma migrate resolve --applied 20260331120000_cleanup_lead_order_whatsapp"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

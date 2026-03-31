@@ -22,14 +22,12 @@ model Order {
   priceDt     Int      @map("price_dt")
   currency    String   @default("TND")
 
-  lead Lead?
-
   @@map("orders")
 }
 
-/// Panier / formulaire abandonné ou suivi avant conversion
+/// Panier / formulaire abandonné ou suivi avant commande (supprimé après confirmation)
 model Lead {
-  id        String @id @default(uuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -41,13 +39,8 @@ model Lead {
   commentaire String?
   productId   String? @map("product_id")
 
-  /// draft | dropped (supprimé après commande confirmée)
+  /// draft | dropped
   status String @default("draft")
-
-  orderId String? @unique @map("order_id")
-  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
-
-  whatsappOpenedAt DateTime? @map("whatsapp_opened_at")
 
   @@index([telephone])
   @@index([status])
