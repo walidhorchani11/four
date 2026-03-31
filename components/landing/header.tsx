@@ -79,18 +79,27 @@ export function Header() {
             </Button>
           </div>
 
-          <button
-            className="md:hidden"
-            type="button"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={tCommon("toggleMenu")}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-foreground" />
-            ) : (
-              <Menu className="h-6 w-6 text-foreground" />
-            )}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <Link
+              href={pathname}
+              locale={otherLocale}
+              className="rounded-full border border-border bg-background/90 px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm backdrop-blur-sm transition-colors hover:border-primary hover:text-primary"
+              aria-label={`${tLang("switchTo")}: ${tLang(otherLocale === "ar" ? "ar" : "fr")}`}
+            >
+              {tLang(otherLocale === "ar" ? "ar" : "fr")}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={tCommon("toggleMenu")}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-foreground" />
+              ) : (
+                <Menu className="h-6 w-6 text-foreground" />
+              )}
+            </button>
+          </div>
         </div>
 
         {isMobileMenuOpen && (
@@ -116,14 +125,6 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t("faq")}
-              </Link>
-              <Link
-                href={pathname}
-                locale={otherLocale}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {tLang(otherLocale === "ar" ? "ar" : "fr")}
               </Link>
               <Button className="mt-2 w-full gap-2" type="button" onClick={() => { setIsMobileMenuOpen(false); openOrder() }}>
                 <ShoppingCart className="h-4 w-4" />
