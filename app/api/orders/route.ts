@@ -3,13 +3,18 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { productsCatalog } from '@/components/landing/products-catalog'
 import { jsonServerError } from '@/lib/prisma-api-error'
+import { isValidTunisianPhone, tunisianPhoneToE164 } from '@/lib/tunisian-phone'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   nom: z.string().trim().min(1).max(200),
-  telephone: z.string().trim().min(1).max(40),
+  telephone: z
+    .string()
+    .trim()
+    .max(40)
+    .refine((s) => isValidTunisianPhone(s), { message: 'PHONE_INVALID' }),
   adresse: z.string().trim().min(1).max(500),
   commentaire: z.string().trim().max(2000).optional().nullable(),
   productId: z.string().trim().min(1),
@@ -62,10 +67,17 @@ export async function POST(request: Request) {
     const json = await request.json()
     const parsed = bodySchema.safeParse(json)
     if (!parsed.success) {
+      const phoneIssue = parsed.error.issues.some(
+        (i) => i.path[0] === 'telephone' && i.message === 'PHONE_INVALID'
+      )
+      if (phoneIssue) {
+        return NextResponse.json({ error: 'PHONE_INVALID' }, { status: 400 })
+      }
       return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
     }
 
-    const { nom, telephone, adresse, commentaire, productId, clientSessionId } = parsed.data
+    const { nom, adresse, commentaire, productId, clientSessionId } = parsed.data
+    const telephone = tunisianPhoneToE164(parsed.data.telephone)!
 
     const product = productsCatalog.find((p) => p.id === productId)
     if (!product) {

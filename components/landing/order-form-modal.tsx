@@ -13,6 +13,25 @@ import {
   clearOrderFormDraft,
   emptyForm,
 } from '@/lib/order-form-draft'
+import { isValidTunisianPhone, tunisianPhoneToE164 } from '@/lib/tunisian-phone'
+import { cn } from '@/lib/utils'
+
+type OrderFieldErrorKey = 'nom' | 'telephone' | 'adresse' | 'product' | 'form'
+
+function focusFirstInvalidField(errors: Partial<Record<OrderFieldErrorKey, string>>) {
+  const order: { key: OrderFieldErrorKey; id: string }[] = [
+    { key: 'nom', id: 'nom-input' },
+    { key: 'telephone', id: 'tel-input' },
+    { key: 'adresse', id: 'adresse-input' },
+    { key: 'product', id: 'produit-input' },
+  ]
+  for (const { key, id } of order) {
+    if (errors[key]) {
+      requestAnimationFrame(() => document.getElementById(id)?.focus())
+      return
+    }
+  }
+}
 
 function hasMeaningfulLeadData(params: {
   nom: string
@@ -42,6 +61,7 @@ export function OrderFormModal() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionId, setSessionId] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<OrderFieldErrorKey, string>>>({})
 
   const formSnapshotRef = useRef(formData)
   formSnapshotRef.current = formData
@@ -82,6 +102,7 @@ export function OrderFormModal() {
         commentaire: base.commentaire,
       })
       setIsSubmitted(false)
+      setFieldErrors({})
       if (selectedProductId) {
         setChosenProductId(selectedProductId)
       } else {
@@ -175,26 +196,56 @@ export function OrderFormModal() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+    if (name === 'nom' || name === 'telephone' || name === 'adresse') {
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        delete next[name as 'nom' | 'telephone' | 'adresse']
+        delete next.form
+        return next
+      })
+    } else if (name === 'commentaire') {
+      setFieldErrors((prev) => {
+        if (!prev.form) return prev
+        const { form, ...rest } = prev
+        return rest
+      })
+    }
+  }
+
+  const handleProductSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setChosenProductId(e.target.value)
+    setFieldErrors((prev) => {
+      if (!prev.product) return prev
+      const { product, ...rest } = prev
+      return rest
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.nom || !formData.telephone || !formData.adresse) {
-      alert(tOrder('alertRequired'))
-      return
-    }
+    const errors: Partial<Record<OrderFieldErrorKey, string>> = {}
 
-    if (!finalProduct) {
-      alert(tOrder('alertProduct'))
-      return
-    }
+    if (!formData.nom.trim()) errors.nom = tOrder('fieldRequired')
+    if (!formData.telephone.trim()) errors.telephone = tOrder('fieldRequired')
+    else if (!isValidTunisianPhone(formData.telephone)) errors.telephone = tOrder('phoneInvalid')
+    if (!formData.adresse.trim()) errors.adresse = tOrder('fieldRequired')
+    if (!finalProduct) errors.product = tOrder('alertProduct')
 
     const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-    if (!whatsappNumber) {
-      alert(tOrder('alertWhatsapp'))
+    if (!whatsappNumber && Object.keys(errors).length === 0) {
+      errors.form = tOrder('alertWhatsapp')
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      focusFirstInvalidField(errors)
       return
     }
+
+    const orderProduct = finalProduct!
+    const waNumber = whatsappNumber!
+    const telephoneE164 = tunisianPhoneToE164(formData.telephone)!
 
     setIsSubmitting(true)
     try {
@@ -204,17 +255,22 @@ export function OrderFormModal() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nom: formData.nom,
-          telephone: formData.telephone,
+          telephone: telephoneE164,
           adresse: formData.adresse,
           commentaire: formData.commentaire || null,
-          productId: finalProduct.id,
+          productId: orderProduct.id,
           clientSessionId: sid,
         }),
       })
 
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string }
-        alert(data.error ?? tOrder('alertOrderError'))
+        if (data.error === 'PHONE_INVALID') {
+          setFieldErrors({ telephone: tOrder('phoneInvalid') })
+          requestAnimationFrame(() => document.getElementById('tel-input')?.focus())
+          return
+        }
+        setFieldErrors({ form: typeof data.error === 'string' ? data.error : tOrder('alertOrderError') })
         return
       }
 
@@ -222,17 +278,17 @@ export function OrderFormModal() {
       setIsSubmitted(true)
       toast.success(tOrder('successTitle'))
 
-      const productDisplayName = productLabel(finalProduct.id)
+      const productDisplayName = productLabel(orderProduct.id)
       const message = tOrder('whatsappMessage', {
         nom: formData.nom,
-        telephone: formData.telephone,
+        telephone: telephoneE164,
         adresse: formData.adresse,
         product: productDisplayName,
-        price: finalProduct.price,
+        price: orderProduct.price,
         commentaire: formData.commentaire?.trim() ? formData.commentaire : tOrder('none'),
       })
 
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
+      const whatsappUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`
       window.open(whatsappUrl, '_blank')
 
       void fetch('/api/leads', {
@@ -253,6 +309,7 @@ export function OrderFormModal() {
         setIsSubmitted(false)
         setFormData({ nom: '', telephone: '', adresse: '', commentaire: '' })
         setChosenProductId('')
+        setFieldErrors({})
       }, 3000)
     } finally {
       setIsSubmitting(false)
@@ -307,9 +364,21 @@ export function OrderFormModal() {
                       placeholder={tOrder('namePh')}
                       value={formData.nom}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none transition-colors bg-gray-50 text-gray-900"
+                      autoComplete="name"
+                      aria-invalid={Boolean(fieldErrors.nom)}
+                      aria-describedby={fieldErrors.nom ? 'nom-error' : undefined}
+                      className={cn(
+                        'w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors bg-gray-50 text-gray-900',
+                        fieldErrors.nom
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-gray-200 focus:border-orange-500'
+                      )}
                     />
+                    {fieldErrors.nom ? (
+                      <p id="nom-error" role="alert" className="mt-1.5 text-sm text-red-600">
+                        {fieldErrors.nom}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div>
@@ -323,9 +392,22 @@ export function OrderFormModal() {
                       placeholder={tOrder('phonePh')}
                       value={formData.telephone}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none transition-colors bg-gray-50 text-gray-900"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      aria-invalid={Boolean(fieldErrors.telephone)}
+                      aria-describedby={fieldErrors.telephone ? 'tel-error' : undefined}
+                      className={cn(
+                        'w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors bg-gray-50 text-gray-900',
+                        fieldErrors.telephone
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-gray-200 focus:border-orange-500'
+                      )}
                     />
+                    {fieldErrors.telephone ? (
+                      <p id="tel-error" role="alert" className="mt-1.5 text-sm text-red-600">
+                        {fieldErrors.telephone}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div>
@@ -339,9 +421,21 @@ export function OrderFormModal() {
                       placeholder={tOrder('addressPh')}
                       value={formData.adresse}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none transition-colors bg-gray-50 text-gray-900"
+                      autoComplete="street-address"
+                      aria-invalid={Boolean(fieldErrors.adresse)}
+                      aria-describedby={fieldErrors.adresse ? 'adresse-error' : undefined}
+                      className={cn(
+                        'w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors bg-gray-50 text-gray-900',
+                        fieldErrors.adresse
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-gray-200 focus:border-orange-500'
+                      )}
                     />
+                    {fieldErrors.adresse ? (
+                      <p id="adresse-error" role="alert" className="mt-1.5 text-sm text-red-600">
+                        {fieldErrors.adresse}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div>
@@ -366,9 +460,15 @@ export function OrderFormModal() {
                         <select
                           id="produit-input"
                           value={chosenProductId}
-                          onChange={(e) => setChosenProductId(e.target.value)}
-                          required
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
+                          onChange={handleProductSelectChange}
+                          aria-invalid={Boolean(fieldErrors.product)}
+                          aria-describedby={fieldErrors.product ? 'product-error' : undefined}
+                          className={cn(
+                            'w-full px-4 py-3 border-2 rounded-lg bg-gray-50 text-gray-900 focus:outline-none transition-colors',
+                            fieldErrors.product
+                              ? 'border-red-500 focus:border-red-500'
+                              : 'border-gray-200 focus:border-orange-500'
+                          )}
                         >
                           <option value="">{tOrder('productPlaceholder')}</option>
                           {productsCatalog.map((p) => (
@@ -380,6 +480,11 @@ export function OrderFormModal() {
                         {finalProduct ? (
                           <p className="mt-2 text-sm text-gray-700 font-semibold">
                             {tOrder('price', { price: finalProduct.price })}
+                          </p>
+                        ) : null}
+                        {fieldErrors.product ? (
+                          <p id="product-error" role="alert" className="mt-1.5 text-sm text-red-600">
+                            {fieldErrors.product}
                           </p>
                         ) : null}
                       </>
@@ -400,6 +505,12 @@ export function OrderFormModal() {
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none transition-colors bg-gray-50 text-gray-900 resize-none"
                     />
                   </div>
+
+                  {fieldErrors.form ? (
+                    <p id="form-error" role="alert" className="mt-4 text-sm text-red-600">
+                      {fieldErrors.form}
+                    </p>
+                  ) : null}
 
                   <button
                     type="submit"
