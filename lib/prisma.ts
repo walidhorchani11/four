@@ -33,7 +33,8 @@ function getPool(): Pool {
 
 function createPrismaClient() {
   const pool = getPool()
-  const adapter = new PrismaPg(pool)
+  // Deux résolutions de @types/pg (pnpm) : cast explicite vers le type attendu par l’adaptateur.
+  const adapter = new PrismaPg(pool as unknown as ConstructorParameters<typeof PrismaPg>[0])
   return new PrismaClient({ adapter })
 }
 
