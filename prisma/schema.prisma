@@ -41,7 +41,7 @@ model Lead {
   commentaire String?
   productId   String? @map("product_id")
 
-  /// draft | dropped | converted
+  /// draft | dropped (supprimé après commande confirmée)
   status String @default("draft")
 
   orderId String? @unique @map("order_id")

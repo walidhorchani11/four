@@ -8,7 +8,6 @@ export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   clientSessionId: z.string().uuid(),
-  markWhatsappOpened: z.boolean().optional(),
   /** nullish évite les rejets silencieux JSON null + z.string() */
   nom: z.string().trim().max(200).nullish(),
   telephone: z.string().trim().max(40).nullish(),
@@ -35,22 +34,11 @@ export async function POST(request: Request) {
       )
     }
 
-    const { clientSessionId, markWhatsappOpened } = parsed.data
-
-    if (markWhatsappOpened) {
-      await prisma.lead.updateMany({
-        where: { clientSessionId },
-        data: { whatsappOpenedAt: new Date() },
-      })
-      return NextResponse.json({ ok: true })
-    }
+    const { clientSessionId } = parsed.data
 
     const existing = await prisma.lead.findUnique({
       where: { clientSessionId },
     })
-    if (existing?.status === 'converted') {
-      return NextResponse.json({ ok: true, skipped: true })
-    }
 
     const nom = emptyToNull(parsed.data.nom ?? undefined)
     const telephone = emptyToNull(parsed.data.telephone ?? undefined)

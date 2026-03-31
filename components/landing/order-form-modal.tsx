@@ -232,11 +232,6 @@ export function OrderFormModal() {
     if (!formData.adresse.trim()) errors.adresse = tOrder('fieldRequired')
     if (!finalProduct) errors.product = tOrder('alertProduct')
 
-    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-    if (!whatsappNumber && Object.keys(errors).length === 0) {
-      errors.form = tOrder('alertWhatsapp')
-    }
-
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)
       focusFirstInvalidField(errors)
@@ -244,7 +239,6 @@ export function OrderFormModal() {
     }
 
     const orderProduct = finalProduct!
-    const waNumber = whatsappNumber!
     const telephoneE164 = tunisianPhoneToE164(formData.telephone)!
 
     setIsSubmitting(true)
@@ -277,28 +271,6 @@ export function OrderFormModal() {
       orderJustCompletedRef.current = true
       setIsSubmitted(true)
       toast.success(tOrder('successTitle'))
-
-      const productDisplayName = productLabel(orderProduct.id)
-      const message = tOrder('whatsappMessage', {
-        nom: formData.nom,
-        telephone: telephoneE164,
-        adresse: formData.adresse,
-        product: productDisplayName,
-        price: orderProduct.price,
-        commentaire: formData.commentaire?.trim() ? formData.commentaire : tOrder('none'),
-      })
-
-      const whatsappUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`
-      window.open(whatsappUrl, '_blank')
-
-      void fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientSessionId: sid,
-          markWhatsappOpened: true,
-        }),
-      })
 
       rotateLeadSessionId()
       setSessionId(getLeadSessionId())

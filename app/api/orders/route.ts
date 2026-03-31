@@ -102,9 +102,8 @@ export async function POST(request: Request) {
     })
 
     if (clientSessionId) {
-      await prisma.lead.updateMany({
-        where: { clientSessionId, status: { not: 'converted' } },
-        data: { status: 'converted', orderId: order.id },
+      await prisma.lead.deleteMany({
+        where: { clientSessionId },
       })
     }
 
