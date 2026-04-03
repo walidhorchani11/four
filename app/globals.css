@@ -148,3 +148,22 @@ html {
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* Hero image mosaic reveal */
+@keyframes hero-mosaic-tile {
+  to {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+.hero-mosaic-tile {
+  animation: hero-mosaic-tile var(--hero-mosaic-duration, 380ms) ease-in forwards;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mosaic-tile {
+    animation-duration: 0.01ms;
+  }
+}

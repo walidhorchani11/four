@@ -1,12 +1,12 @@
 "use client"
 
-import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MessageCircle, ShoppingCart } from "lucide-react"
 import { useOrder } from "./order-context"
 import { getWhatsAppHref } from "@/lib/whatsapp"
+import { HeroMosaicImages } from "./hero-mosaic-images"
 
 export function HeroSection() {
   const t = useTranslations("hero")
@@ -14,15 +14,15 @@ export function HeroSection() {
   const waHref = getWhatsAppHref()
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30 pt-16 md:pt-20">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -left-20 top-1/2 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
       </div>
 
-      <div className="container relative mx-auto px-4 py-12 lg:py-20">
+      <div className="container relative mx-auto px-4 pb-12 pt-6 lg:py-20">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
-          <div className="flex flex-1 flex-col items-center text-center lg:items-start lg:text-left">
+          <div className="flex min-w-0 flex-1 flex-col items-center text-center lg:items-start lg:text-left">
             <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/20">
               {t("badge")}
             </Badge>
@@ -56,20 +56,17 @@ export function HeroSection() {
             </div>
           </div>
 
-          <div className="relative flex-1">
-            <div className="relative aspect-square max-w-lg mx-auto lg:max-w-none">
+          <div className="relative min-w-0 w-full shrink-0 basis-full lg:flex-1 lg:shrink">
+            <div className="relative mx-auto aspect-square w-full max-w-lg lg:max-w-none">
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
-              <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-card shadow-2xl">
-                <Image
-                  src="/images/Fh.webp"
-                  alt={t("imageAlt")}
-                  width={600}
-                  height={600}
-                  className="h-full w-full object-cover"
-                  priority
+              <div className="absolute inset-0 overflow-hidden rounded-3xl border border-border/50 bg-card shadow-2xl">
+                <HeroMosaicImages
+                  alt1={t("imageAlt")}
+                  alt2={t("imageAlt2")}
+                  alt3={t("imageAlt3")}
                 />
               </div>
-              <div className="absolute -bottom-4 -right-4 rounded-2xl bg-card p-4 shadow-xl border border-border/50 animate-float">
+              <div className="absolute -bottom-4 -right-4 z-10 rounded-2xl bg-card p-4 shadow-xl border border-border/50 animate-float">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                     <span className="text-2xl">🔥</span>
