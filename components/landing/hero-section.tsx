@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, MessageCircle, ShoppingCart } from "lucide-react"
+import { MessageCircle, ShoppingCart } from "lucide-react"
 import { useOrder } from "./order-context"
 import { getWhatsAppHref } from "@/lib/whatsapp"
 
@@ -53,21 +53,6 @@ export function HeroSection() {
                   {t("contactWhatsApp")}
                 </a>
               </Button>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-6">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-5 w-5 text-primary" />
-                <span>{t("trust1")}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-5 w-5 text-primary" />
-                <span>{t("trust2")}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-5 w-5 text-primary" />
-                <span>{t("trust3")}</span>
-              </div>
             </div>
           </div>
 
