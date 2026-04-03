@@ -1,5 +1,6 @@
 import { Header } from '@/components/landing/header'
 import { HeroSection } from '@/components/landing/hero-section'
+import { OrderFormSection } from '@/components/landing/order-form-section'
 import { ProblemSection } from '@/components/landing/problem-section'
 import { BenefitsSection } from '@/components/landing/benefits-section'
 import { ProductsSection } from '@/components/landing/products-section'
@@ -16,6 +17,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <OrderFormSection instanceId="primary" />
         <ProblemSection />
         <BenefitsSection />
         <ProductsSection />
@@ -23,6 +25,7 @@ export default function Home() {
         <UrgencySection />
         <FAQSection />
         <FinalCTASection />
+        <OrderFormSection instanceId="secondary" />
       </main>
       <Footer />
       <WhatsAppButton />

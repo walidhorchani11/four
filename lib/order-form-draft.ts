@@ -6,7 +6,6 @@ export type OrderFormDraft = {
   nom: string
   telephone: string
   adresse: string
-  commentaire: string
   chosenProductId: string
 }
 
@@ -14,7 +13,6 @@ const emptyForm = (): OrderFormDraft => ({
   nom: '',
   telephone: '',
   adresse: '',
-  commentaire: '',
   chosenProductId: '',
 })
 
@@ -31,7 +29,6 @@ function normalizeDraft(raw: unknown): OrderFormDraft | null {
     nom: typeof o.nom === 'string' ? o.nom : '',
     telephone: typeof o.telephone === 'string' ? o.telephone : '',
     adresse: typeof o.adresse === 'string' ? o.adresse : '',
-    commentaire: typeof o.commentaire === 'string' ? o.commentaire : '',
     chosenProductId: chosen,
   }
 }
