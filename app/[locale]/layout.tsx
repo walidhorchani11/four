@@ -24,6 +24,11 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
+function getSiteOrigin(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  return raw.replace(/\/$/, '')
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -31,9 +36,37 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'metadata' })
+  const tCommon = await getTranslations({ locale, namespace: 'common' })
+
+  const pathname = locale === routing.defaultLocale ? '/' : `/${locale}`
+  const siteOrigin = getSiteOrigin()
+
   return {
+    metadataBase: new URL(siteOrigin),
     title: t('title'),
     description: t('description'),
+    alternates: {
+      canonical: pathname,
+      languages: {
+        ar: '/',
+        fr: '/fr',
+      },
+    },
+    openGraph: {
+      type: 'website',
+      siteName: tCommon('brandFull'),
+      title: t('title'),
+      description: t('description'),
+      url: pathname,
+      locale: locale === 'ar' ? 'ar_TN' : 'fr_FR',
+      alternateLocale: locale === 'ar' ? ['fr_FR'] : ['ar_TN'],
+      images: [
+        {
+          url: '/images/Fh.webp',
+          alt: t('ogImageAlt'),
+        },
+      ],
+    },
   }
 }
 
