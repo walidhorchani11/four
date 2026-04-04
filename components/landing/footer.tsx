@@ -39,7 +39,7 @@ export function Footer() {
     process.env.NEXT_PUBLIC_FACEBOOK_URL?.trim() || DEFAULT_FACEBOOK_URL
 
   return (
-    <footer className="border-t border-border bg-card py-12">
+    <footer className="border-t border-border bg-card pb-28 pt-12 md:py-12">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">

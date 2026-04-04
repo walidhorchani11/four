@@ -1,11 +1,13 @@
 'use client'
 
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useOrder, fieldIds, type OrderFormInstanceId, ORDER_FORM_PRIMARY_ID } from './order-context'
 import { productsCatalog } from './products-catalog'
 import { cn } from '@/lib/utils'
+import { isValidTunisianPhone } from '@/lib/tunisian-phone'
 
 const SECTION_IDS: Record<OrderFormInstanceId, string> = {
   primary: ORDER_FORM_PRIMARY_ID,
@@ -33,6 +35,15 @@ export function OrderFormSection({ instanceId }: { instanceId: OrderFormInstance
   const productLabel = (id: string) => tProducts(`items.${id}.name`)
   const headingId = `order-form-heading-${instanceId}`
 
+  /** Aligné sur la validation de commande dans order-context (handleSubmit). */
+  const isFormCompleteAndValid = useMemo(() => {
+    if (!finalProduct) return false
+    if (!formData.nom.trim()) return false
+    if (!formData.telephone.trim() || !isValidTunisianPhone(formData.telephone)) return false
+    if (!formData.adresse.trim()) return false
+    return true
+  }, [formData.nom, formData.telephone, formData.adresse, finalProduct])
+
   return (
     <section
       id={SECTION_IDS[instanceId]}
@@ -49,7 +60,7 @@ export function OrderFormSection({ instanceId }: { instanceId: OrderFormInstance
             <>
               <form
                 onSubmit={(e) => handleSubmit(e, instanceId)}
-                className="mt-8 space-y-4"
+                className="mt-8 space-y-4 pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom,0px)))] md:pb-0"
               >
                 <div>
                   <p className="mb-3 text-sm font-semibold text-foreground" id={`${ids.produit}-legend`}>
@@ -248,7 +259,12 @@ export function OrderFormSection({ instanceId }: { instanceId: OrderFormInstance
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-3 w-full transform rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 py-4 font-bold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none"
+                  className={cn(
+                    'mt-3 w-full transform rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 py-4 font-bold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none',
+                    isFormCompleteAndValid &&
+                      !isSubmitting &&
+                      'motion-safe:animate-pulse-glow'
+                  )}
                 >
                   {isSubmitting ? tOrder('submitting') : tOrder('submit')}
                 </button>
