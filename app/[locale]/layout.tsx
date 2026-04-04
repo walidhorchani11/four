@@ -8,6 +8,7 @@ import { Noto_Sans, Noto_Sans_Arabic } from 'next/font/google'
 import { OrderProvider } from '@/components/landing/order-context'
 import { Toaster } from '@/components/ui/sonner'
 import { routing } from '@/i18n/routing'
+import { getSiteOrigin } from '@/lib/site-url'
 import '../globals.css'
 
 const notoSans = Noto_Sans({
@@ -22,11 +23,6 @@ const notoSansArabic = Noto_Sans_Arabic({
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
-}
-
-function getSiteOrigin(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-  return raw.replace(/\/$/, '')
 }
 
 export async function generateMetadata({
