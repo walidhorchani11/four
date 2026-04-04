@@ -55,18 +55,9 @@ function focusFirstInvalidField(
   }
 }
 
-function hasMeaningfulLeadData(params: {
-  nom: string
-  telephone: string
-  adresse: string
-  productId: string | null
-}) {
-  const phoneDigits = params.telephone.replace(/\D/g, '').length
-  if (phoneDigits >= 8) return true
-  if (params.nom.trim().length >= 2) return true
-  if (params.adresse.trim().length >= 8) return true
-  if (params.productId && params.productId.length > 0) return true
-  return false
+/** Un lead n’est envoyé en base que si le téléphone est joignable (priorité métier : rappel / confirmation). */
+function hasMeaningfulLeadData(params: { telephone: string }) {
+  return isValidTunisianPhone(params.telephone)
 }
 
 type OrderContextValue = {
@@ -160,7 +151,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   const saveLeadDraft = useCallback(() => {
     if (!sessionId || isSubmitted) return
     const productId = finalProduct?.id ?? null
-    if (!hasMeaningfulLeadData({ ...formData, productId })) return
+    if (!hasMeaningfulLeadData({ telephone: formData.telephone })) return
     void fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -178,8 +169,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!sessionId || isSubmitted) return
-    const productId = finalProduct?.id ?? null
-    if (!hasMeaningfulLeadData({ ...formData, productId })) return
+    if (!hasMeaningfulLeadData({ telephone: formData.telephone })) return
     const timer = window.setTimeout(() => {
       saveLeadDraft()
     }, 1500)
@@ -193,14 +183,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       const chosen = chosenProductIdRef.current
       const sel = selectedProductIdRef.current
       const productId = sel ?? (chosen || null)
-      if (
-        !hasMeaningfulLeadData({
-          nom: snap.nom,
-          telephone: snap.telephone,
-          adresse: snap.adresse,
-          productId,
-        })
-      ) {
+      if (!hasMeaningfulLeadData({ telephone: snap.telephone })) {
         return
       }
       const sid = getLeadSessionId()

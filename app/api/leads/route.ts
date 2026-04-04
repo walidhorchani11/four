@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { jsonServerError } from '@/lib/prisma-api-error'
+import { isValidTunisianPhone, tunisianPhoneToE164 } from '@/lib/tunisian-phone'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -40,8 +41,13 @@ export async function POST(request: Request) {
       where: { clientSessionId },
     })
 
+    const rawTel = parsed.data.telephone ?? ''
+    if (!isValidTunisianPhone(rawTel)) {
+      return NextResponse.json({ error: 'PHONE_INVALID' }, { status: 400 })
+    }
+    const telephoneE164 = tunisianPhoneToE164(rawTel)!
+
     const nom = emptyToNull(parsed.data.nom ?? undefined)
-    const telephone = emptyToNull(parsed.data.telephone ?? undefined)
     const adresse = emptyToNull(parsed.data.adresse ?? undefined)
     const commentaire = emptyToNull(parsed.data.commentaire ?? undefined)
     const productId = emptyToNull(parsed.data.productId ?? undefined)
@@ -49,7 +55,7 @@ export async function POST(request: Request) {
 
     const data = {
       nom,
-      telephone,
+      telephone: telephoneE164,
       adresse,
       commentaire,
       productId,
