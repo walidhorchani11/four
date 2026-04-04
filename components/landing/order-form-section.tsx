@@ -260,10 +260,10 @@ export function OrderFormSection({ instanceId }: { instanceId: OrderFormInstance
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    'mt-3 w-full transform rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 py-4 font-bold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none',
-                    isFormCompleteAndValid &&
-                      !isSubmitting &&
-                      'motion-safe:animate-pulse-glow'
+                    'mt-3 w-full transform rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 py-4 font-bold text-white transition-transform duration-200 hover:scale-[1.02] hover:from-orange-600 hover:to-orange-700 disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none disabled:hover:scale-100',
+                    isFormCompleteAndValid && !isSubmitting
+                      ? 'animate-order-cta-pulse'
+                      : 'shadow-lg transition-shadow duration-200 hover:shadow-xl'
                   )}
                 >
                   {isSubmitting ? tOrder('submitting') : tOrder('submit')}

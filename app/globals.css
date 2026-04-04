@@ -149,6 +149,34 @@ html {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
+/* Bouton commande : halo orange bien visible quand le formulaire est valide */
+@keyframes order-cta-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.2),
+      0 4px 6px -4px rgb(0 0 0 / 0.12),
+      0 0 0 0 rgb(249 115 22 / 0.55);
+  }
+  50% {
+    box-shadow:
+      0 14px 28px -6px rgb(0 0 0 / 0.28),
+      0 8px 16px -8px rgb(0 0 0 / 0.15),
+      0 0 0 14px rgb(249 115 22 / 0);
+  }
+}
+
+.animate-order-cta-pulse {
+  animation: order-cta-pulse 1.75s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-order-cta-pulse {
+    animation: none;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+  }
+}
+
 /* Hero image mosaic reveal */
 @keyframes hero-mosaic-tile {
   to {
