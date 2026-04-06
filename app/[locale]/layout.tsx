@@ -9,6 +9,7 @@ import { OrderProvider } from '@/components/landing/order-context'
 import { Toaster } from '@/components/ui/sonner'
 import { routing } from '@/i18n/routing'
 import { getSiteOrigin } from '@/lib/site-url'
+import { MetaPixel } from '@/components/meta-pixel'
 import '../globals.css'
 
 const notoSans = Noto_Sans({
@@ -87,6 +88,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning className={fontClassName}>
       <body className="antialiased">
+        <MetaPixel />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <OrderProvider>
             {children}
