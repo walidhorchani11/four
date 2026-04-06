@@ -3,7 +3,9 @@ import Script from 'next/script'
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim()
 
 /**
- * Meta (Facebook) Pixel — PageView. Désactivé si NEXT_PUBLIC_META_PIXEL_ID est absent.
+ * Meta (Facebook) Pixel — PageView au chargement.
+ * L’événement Lead est déclenché côté client après commande validée (`lib/meta-pixel-track.ts`).
+ * Désactivé si NEXT_PUBLIC_META_PIXEL_ID est absent.
  * @see https://developers.facebook.com/docs/meta-pixel/get-started/
  */
 export function MetaPixel() {

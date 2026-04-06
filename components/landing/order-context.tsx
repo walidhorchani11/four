@@ -19,6 +19,7 @@ import {
   emptyForm,
 } from '@/lib/order-form-draft'
 import { isValidTunisianPhone, tunisianPhoneToE164 } from '@/lib/tunisian-phone'
+import { trackMetaLead } from '@/lib/meta-pixel-track'
 
 export const ORDER_FORM_PRIMARY_ID = 'order-form-primary'
 
@@ -281,6 +282,13 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       orderJustCompletedRef.current = true
       setIsSubmitted(true)
       toast.success(tOrder('successTitle'))
+
+      const priceDt = Number.parseInt(orderProduct.price, 10)
+      trackMetaLead({
+        content_name: orderProduct.nameFr,
+        content_ids: [orderProduct.id],
+        ...(Number.isFinite(priceDt) ? { value: priceDt, currency: 'TND' } : {}),
+      })
 
       rotateLeadSessionId()
       setSessionId(getLeadSessionId())
