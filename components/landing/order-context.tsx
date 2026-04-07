@@ -22,6 +22,7 @@ import { isValidTunisianPhone, tunisianPhoneToE164 } from '@/lib/tunisian-phone'
 import { trackMetaLead } from '@/lib/meta-pixel-track'
 
 export const ORDER_FORM_PRIMARY_ID = 'order-form-primary'
+export const ORDER_FORM_SECONDARY_ID = 'order-form-secondary'
 
 export type OrderFormInstanceId = 'primary' | 'secondary'
 

@@ -4,14 +4,20 @@ import { useMemo } from 'react'
 import Image from 'next/image'
 import { Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useOrder, fieldIds, type OrderFormInstanceId, ORDER_FORM_PRIMARY_ID } from './order-context'
+import {
+  useOrder,
+  fieldIds,
+  type OrderFormInstanceId,
+  ORDER_FORM_PRIMARY_ID,
+  ORDER_FORM_SECONDARY_ID,
+} from './order-context'
 import { productsCatalog } from './products-catalog'
 import { cn } from '@/lib/utils'
 import { isValidTunisianPhone } from '@/lib/tunisian-phone'
 
 const SECTION_IDS: Record<OrderFormInstanceId, string> = {
   primary: ORDER_FORM_PRIMARY_ID,
-  secondary: 'order-form-secondary',
+  secondary: ORDER_FORM_SECONDARY_ID,
 }
 
 export function OrderFormSection({ instanceId }: { instanceId: OrderFormInstanceId }) {
